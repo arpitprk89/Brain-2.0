@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain 2.0 — A Bayesian Model of Student Cognitive Load</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12141f; --surface:#1b1e2c; --surface2:#232741;
+    --ink:#eae6dc; --muted:#9ba0b8;
+    --amber:#e8a33d; --teal:#5fa8a0; --terra:#c96a4f;
+    --line:#2c3049;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Work Sans',sans-serif;line-height:1.55;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0;}
+  a{color:var(--teal);}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+  nav{position:sticky;top:0;background:rgba(18,20,31,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:5;}
+  nav .wrap{display:flex;gap:22px;padding:16px 24px;font-size:14px;align-items:center;}
+  nav .brand{font-family:'Fraunces',serif;font-weight:600;margin-right:auto;font-size:17px;}
+  nav a{color:var(--muted);text-decoration:none;}
+  nav a:hover{color:var(--ink);}
+
+  section{padding:56px 0;}
+  .hero{padding-top:64px;}
+  .hero p.tag{color:var(--muted);margin:8px 0 0;font-size:15px;}
+  h1{font-size:2.3rem;}
+  .lede{margin-top:20px;color:#cfd0dd;font-size:15.5px;max-width:64ch;}
+  .cta{display:inline-block;margin-top:24px;background:var(--amber);color:#1b1400;padding:12px 22px;border-radius:6px;font-weight:600;text-decoration:none;font-size:15px;}
+
+  h2{font-size:1.5rem;margin-bottom:6px;}
+  .kicker{color:var(--muted);font-size:14px;margin-bottom:22px;}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px;}
+  .steps div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;}
+  .steps .n{color:var(--amber);font-family:'Fraunces',serif;font-size:1.3rem;}
+  .steps h3{font-size:15px;margin:8px 0 6px;}
+  .steps p{font-size:13.5px;color:var(--muted);margin:0;}
+  @media (max-width:600px){.steps{grid-template-columns:1fr;}}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:26px 26px 22px;}
+  .field{margin-bottom:20px;}
+  .field label{display:flex;justify-content:space-between;font-size:14px;color:#cfd0dd;margin-bottom:8px;}
+  .field label span.val{color:var(--amber);font-weight:600;}
+  input[type=range]{width:100%;accent-color:var(--amber);}
+  button{background:var(--amber);color:#1b1400;border:none;padding:12px 22px;border-radius:6px;font-family:'Work Sans',sans-serif;font-weight:600;font-size:15px;cursor:pointer;margin-top:6px;}
+  button:hover{opacity:.9;}
+  .results{margin-top:28px;display:none;}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .bar-row .lbl{width:90px;font-size:13px;color:var(--muted);}
+  .bar-track{flex:1;background:var(--surface2);border-radius:5px;height:14px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:5px;transition:width .5s ease;}
+  .bar-row .pct{width:44px;text-align:right;font-size:13px;color:var(--muted);}
+  .verdict{margin-top:18px;padding:16px 18px;border-radius:8px;border-left:3px solid var(--amber);background:var(--surface2);}
+  .verdict h3{font-size:16px;margin-bottom:6px;}
+  .verdict p{font-size:14.5px;color:#cfd0dd;margin:0;}
+  .history{margin-top:16px;display:flex;gap:5px;align-items:flex-end;height:56px;}
+  .history .bin{flex:1;background:var(--amber);border-radius:2px 2px 0 0;opacity:.85;}
+  .history-label{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .tips{display:grid;gap:12px;margin-top:20px;}
+  .tip{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .tip summary{cursor:pointer;font-weight:600;font-size:14.5px;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  .tip summary::after{content:'+';color:var(--amber);font-size:18px;}
+  .tip[open] summary::after{content:'–';}
+  .tip p{font-size:13.5px;color:var(--muted);margin:10px 0 0;}
+  .tip span.badge{font-size:11px;color:var(--teal);border:1px solid var(--teal);padding:2px 8px;border-radius:10px;margin-left:10px;}
+
+  .methodology p{font-size:14.5px;color:#cfd0dd;}
+  .note{margin-top:10px;font-size:13px;color:var(--muted);}
+  footer{border-top:1px solid var(--line);padding:30px 0 60px;font-size:13px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="brand">Brain 2.0</span>
+  <a href="#checkin">Check-in</a>
+  <a href="#tips">Tips</a>
+  <a href="#about">About</a>
+</div></nav>
+
+<div class="wrap">
+
+  <section class="hero">
+    <h1>Brain 2.0</h1>
+    <p class="tag">A Bayesian model of student cognitive load</p>
+    <p class="lede">Most students don't notice workload building up until it's already too heavy. Brain 2.0 asks a few honest questions about your day and turns them into a belief — Low, Moderate or High load — that updates the more you check in. Free, no login, nothing leaves your device.</p>
+    <a class="cta" href="#checkin">Start today's check-in ↓</a>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p class="kicker">Three steps, under a minute</p>
+    <div class="steps">
+      <div><div class="n">1</div><h3>Answer 5 quick sliders</h3><p>Study hours, sleep, stress, exam pressure, felt support.</p></div>
+      <div><div class="n">2</div><h3>Get your belief</h3><p>A Bayesian update combines today's answers with your last check-in.</p></div>
+      <div><div class="n">3</div><h3>Get one real suggestion</h3><p>Not generic advice — matched to whether you're Low, Moderate or High.</p></div>
+    </div>
+  </section>
+
+  <section id="checkin">
+    <h2>Today's check-in</h2>
+    <p class="kicker">Takes under a minute. Your answers stay on this device.</p>
+    <div class="card">
+      <div class="field">
+        <label>Hours studied today <span class="val" id="v-study">4</span> h</label>
+        <input type="range" id="study" min="0" max="12" value="4">
+      </div>
+      <div class="field">
+        <label>Hours slept last night <span class="val" id="v-sleep">7</span> h</label>
+        <input type="range" id="sleep" min="0" max="10" value="7">
+      </div>
+      <div class="field">
+        <label>How stressed do you feel right now <span class="val" id="v-stress">5</span>/10</label>
+        <input type="range" id="stress" min="0" max="10" value="5">
+      </div>
+      <div class="field">
+        <label>Pressure from upcoming exams/deadlines <span class="val" id="v-exam">5</span>/10</label>
+        <input type="range" id="exam" min="0" max="10" value="5">
+      </div>
+      <div class="field">
+        <label>Do you feel supported right now (friends/family) <span class="val" id="v-support">5</span>/10</label>
+        <input type="range" id="support" min="0" max="10" value="5">
+      </div>
+      <button onclick="reflect()">Update my belief</button>
+
+      <div class="results" id="results">
+        <div class="bar-row"><div class="lbl">Low load</div><div class="bar-track"><div class="bar-fill" id="bar-low" style="background:var(--teal);width:0%"></div></div><div class="pct" id="pct-low">0%</div></div>
+        <div class="bar-row"><div class="lbl">Moderate</div><div class="bar-track"><div class="bar-fill" id="bar-mod" style="background:var(--amber);width:0%"></div></div><div class="pct" id="pct-mod">0%</div></div>
+        <div class="bar-row"><div class="lbl">High load</div><div class="bar-track"><div class="bar-fill" id="bar-high" style="background:var(--terra);width:0%"></div></div><div class="pct" id="pct-high">0%</div></div>
+
+        <div class="verdict" id="verdict"></div>
+
+        <div class="history" id="history"></div>
+        <div class="history-label">Your last check-ins, left to right</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tips">
+    <h2>Tips library</h2>
+    <p class="kicker">Practical, not preachy. Open whichever matches how you feel right now.</p>
+    <div class="tips">
+      <details class="tip"><summary>My workload feels too big to even start <span class="badge">High load</span></summary><p>Pick the single most urgent task and give it 25 minutes, nothing else. Write everything else on a list and close it — an unfinished list in your head costs more energy than one on paper.</p></details>
+      <details class="tip"><summary>I studied for hours but retained nothing <span class="badge">Any</span></summary><p>Recall beats re-reading. Close the book and try to write out what you remember from memory before checking — it feels harder but sticks far longer.</p></details>
+      <details class="tip"><summary>I keep sleeping late "to catch up"</summary><p>Late-night study past a point has negative returns — tired recall is unreliable. Protecting even 7 hours usually outperforms an extra 2 hours of exhausted study.</p></details>
+      <details class="tip"><summary>Exam pressure is making me panic</summary><p>Break the exam into topics and rank them by how shaky you feel, not by syllabus order. Studying your weakest topic first, even briefly, reduces anxiety faster than reviewing what you already know.</p></details>
+      <details class="tip"><summary>I feel like I have no one to talk to about this</summary><p>A short message to one trusted person — a teacher, parent, or friend — counts as support. If it ever feels unmanageable, that's worth a real conversation with an adult you trust, not just this tool.</p></details>
+      <details class="tip"><summary>Everything feels fine <span class="badge">Low load</span></summary><p>Good day to build a buffer — get ahead on a topic you'll need later, or genuinely rest. Both count as progress.</p></details>
+    </div>
+  </section>
+
+  <section id="about" class="methodology">
+    <h2>How the belief update works</h2>
+    <p>Each check-in is scored on five weighted signals into a single load estimate between 0 and 1. That estimate is compared against three reference profiles (Low ≈ 0.25, Moderate ≈ 0.5, High ≈ 0.75) using a Gaussian likelihood, then combined with your <em>prior</em> belief — carried over from your last check-in — using Bayes' rule, and renormalised into the posterior shown above. Run it a few days in a row and you're watching your own belief state evolve with the evidence.</p>
+    <p class="note">This is a self-reflection tool, not a clinical or diagnostic instrument. If workload or stress feels unmanageable, talking to a teacher, family member, or counsellor is worth more than any score on this page.</p>
+  </section>
+
+  <footer>
+    Brain 2.0 — built by a student, for students. Your check-in data stays in this browser only (localStorage) — nothing is sent anywhere.
+  </footer>
+</div>
+
+<script>
+const hist = JSON.parse(localStorage.getItem('brain2-history')||'[]');
+let prior = JSON.parse(localStorage.getItem('brain2-prior')||'null') || [1/3,1/3,1/3];
+
+['study','sleep','stress','exam','support'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('input',()=>document.getElementById('v-'+id).textContent=el.value);
+});
+
+function gauss(x,mean,varr){return Math.exp(-((x-mean)**2)/(2*varr));}
+
+function reflect(){
+  const study=+study0.value, sleep=+sleep0.value, stress=+stress0.value, exam=+exam0.value, support=+support0.value;
+  const n=(v,max)=>Math.min(1,Math.max(0,v/max));
+  const score = 0.25*n(study,12) + 0.20*(1-n(sleep,10)) + 0.25*n(stress,10) + 0.20*n(exam,10) + 0.10*(1-n(support,10));
+
+  const varr=0.045;
+  const lk=[gauss(score,0.25,varr), gauss(score,0.5,varr), gauss(score,0.75,varr)];
+  let post=[lk[0]*prior[0], lk[1]*prior[1], lk[2]*prior[2]];
+  const sum=post[0]+post[1]+post[2];
+  post=post.map(p=>p/sum);
+  prior=post;
+  localStorage.setItem('brain2-prior', JSON.stringify(post));
+
+  document.getElementById('results').style.display='block';
+  setBar('low',post[0]); setBar('mod',post[1]); setBar('high',post[2]);
+
+  const top = post.indexOf(Math.max(...post));
+  const verdicts=[
+    ['Belief: mostly Low load','Your signals lean toward manageable load today. Good day to get ahead on something, or just rest — both count as progress.'],
+    ['Belief: mostly Moderate load','Load is building but manageable. A short prioritised list and one real break today usually keeps this from tipping higher.'],
+    ['Belief: mostly High load','Several signals point toward heavy load. Consider cutting today\'s plan to the one or two things that actually matter, and protecting your sleep tonight.']
+  ];
+  document.getElementById('verdict').innerHTML = `<h3>${verdicts[top][0]}</h3><p>${verdicts[top][1]}</p>`;
+
+  hist.push(score);
+  if(hist.length>14) hist.shift();
+  localStorage.setItem('brain2-history', JSON.stringify(hist));
+  renderHistory();
+}
+
+function setBar(key,val){
+  const pct=Math.round(val*100);
+  document.getElementById('bar-'+key).style.width=pct+'%';
+  document.getElementById('pct-'+key).textContent=pct+'%';
+}
+
+function renderHistory(){
+  const box=document.getElementById('history');
+  box.innerHTML='';
+  hist.forEach(v=>{
+    const d=document.createElement('div');
+    d.className='bin';
+    d.style.height=Math.round(v*100)+'%';
+    box.appendChild(d);
+  });
+}
+
+const study0=document.getElementById('study'), sleep0=document.getElementById('sleep'),
+      stress0=document.getElementById('stress'), exam0=document.getElementById('exam'),
+      support0=document.getElementById('support');
+
+if(hist.length){
+  document.getElementById('results').style.display='block';
+  renderHistory();
+  setBar('low',prior[0]);setBar('mod',prior[1]);setBar('high',prior[2]);
+}
+</script>
+</body>
+</html>
