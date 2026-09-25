@@ -1,4 +1,4 @@
-** Brain 2.0 — A Bayesian Model of Student Cognitive Load
+# Brain 2.0 — A Bayesian Model of Student Cognitive Load
 
 **Live demo:** *(host `index.html` on GitHub Pages and link it here)*
 
@@ -42,4 +42,4 @@ Built July–September 2026, alongside ongoing conversations about computational
 
 - Export check-in history as CSV for a student's own record
 - A small teacher/parent-facing aggregate view (opt-in, anonymous) to spot class-wide load spikes before exams
-- Replace hand-picked weights with logistic regression trained on real (anonymised) check-in data**
+- Replace hand-picked weights with logistic regression trained on real (anonymised) check-in data
